@@ -1,0 +1,23 @@
+{
+  "name": "federation",
+  "version": "1.0.0",
+  "description": "Federation protocol backend service",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xagfans/federation.git"
+  },
+  "author": "xagfans.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xagfans/federation/issues"
+  },
+  "homepage": "https://github.com/xagfans/federation#readme",
+  "dependencies": {
+    "path-to-regexp": "^6.1.0",
+    "ripple-lib": "^1.7.1"
+  }
+}
