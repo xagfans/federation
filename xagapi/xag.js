@@ -24,6 +24,10 @@ function handleUser(request, res) {
 				issuer : 'rpG9E7B3ocgaKqG7vmrsu3jmGwex8W4xAG'
 			}],
 			extra_fields : [{
+				type : 'label',
+				label : '从瑞波网络发送到瑞波基因地址。',
+				hint : '请使用瑞波钱包2.3版本或更高。有问题请发帖https://xagfans.com'
+			},{
 				type : 'text',
 				name : 'xagAddress',
 				label : '瑞波基因地址',

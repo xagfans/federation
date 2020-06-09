@@ -9,14 +9,16 @@ module.exports = (app) => {
 function handle(req, res, matched) {
   var request = url.parse(req.url, true);
   var client = request.query['client'];
+  var network = request.query['network'];
 
   if (request.query['type']) {
     switch (request.query['type']) {
       case 'federation':
       case 'quote':
-        if (!client) {
+        if (!client || !network) {
           return handleNoClient(request, res);
         }
+       
         dispatchUser(request.query['type'], request, res);
         break;
       default:
@@ -90,7 +92,7 @@ function handleInvalidError(request, res) {
 function handleNoClient(request, res) {
   var error = {
     result : 'error',
-    error_message : 'Not foxlet client. 请使用最新的瑞波桌面钱包。',
+    error_message : '请使用至少2.3版本的瑞波钱包。 Please use foxlet v2.3 or later.',
     request : request.query
   }
   responseJson(res, error);
