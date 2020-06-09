@@ -1,6 +1,7 @@
 const url = require('url');
 const mapping = require('./mapping.js');
 const xag = require('./xag.js');
+const xag2ripple = require('./xag2ripple.js');
 
 module.exports = (app) => {
   app.get('/xagapi', handle);
@@ -32,13 +33,14 @@ function handle(req, res, matched) {
 function dispatchUser(type, request, res) {
   if(request.query['destination']) {
     var dest = request.query['destination'].toLowerCase();
+    var network = request.query['network'].toLowerCase();
     switch (dest) {
       case 'xag':
-        //TODO: check whether public network
+        var handler = (network == 'xag') ? xag2ripple : xag;
         if (type === 'federation') {
-          xag.handleUser(request, res);
+          handler.handleUser(request, res);
         } else {
-          xag.handleQuote(request, res);
+          handler.handleQuote(request, res);
         }
         break;
       default:
@@ -92,7 +94,8 @@ function handleInvalidError(request, res) {
 function handleNoClient(request, res) {
   var error = {
     result : 'error',
-    error_message : '请使用至少2.3版本的瑞波钱包。 Please use foxlet v2.3 or later.',
+
+    error_message : '请使用至少2.4版本的瑞波钱包。 Please use foxlet v2.4 or later.',
     request : request.query
   }
   responseJson(res, error);
