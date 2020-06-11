@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="keywords" content="XAG Gateway, security, safe, fast" />
+	<meta name="description" content="XAG网关是一个基于百分百准备金的网关，所有的资产都是公开透明的。">
+	<meta name="author" content="xagfans">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>XAG Audit</title>
+	
+	<style type="text/css">
+		div.unstyledTable { border: 1px solid #999999; }
+		.divTable.unstyledTable .divTableCell, .divTable.unstyledTable .divTableHead { }
+		.divTable.unstyledTable .divTableHeading { background: #DDDDDD; }
+		.divTable.unstyledTable .divTableHeading .divTableHead { font-weight: bold; }
+		.divTable.unstyledTable .divTableHeading .divTableCell { background: white; }
+		.unstyledTable .tableFootStyle { font-weight: bold; }
+
+		.divTable{ display: table; }
+		.divTableRow { display: table-row; }
+		.divTableHeading { display: table-header-group;}
+		.divTableCell, .divTableHead { display: table-cell; border: 1px solid #999999; padding: 3px 10px;}
+		.divTableHeading { display: table-header-group;}
+		.divTableFoot { display: table-footer-group;}
+		.divTableBody { display: table-row-group;}
+	</style>
+
+</head>
+
+<body style="padding: 15px;">
+	<p><a href="#" id="get-data">XAG網関監査報告書</a></p>
+  <div class="divTable unstyledTable">
+    	<div class="divTableHeading">
+	    	<div class="divTableRow">
+	    		<div class="divTableHead">時間</div>
+	    		<div class="divTableCell" id="update_time"></div>
+	    		<div class="divTableHead">人々の数</div>
+	    		<div class="divTableCell" id="holder_num"></div>
+	    		<div class="divTableHead">規格备金率</div>
+	    		<div class="divTableCell" id="reserve_rate"></div>
+	    	</div>
+				<div class="divTableRow">
+					<div class="divTableHead">発行地址</div>
+					<div class="divTableCell" id="issuer"></div>
+					<div class="divTableHead">流動性</div>
+					<div class="divTableCell" id="ripple"></div>
+					<div class="divTableHead">積立金</div>
+					<div class="divTableCell" id='xrpgen'></div>
+				</div>
+			</div>
+  </div>
+  
+  <p> </p>
+  
+  <div class="divTable unstyledTable">
+    	<div class="divTableHeading">
+	    	<div class="divTableRow">
+	    		<div class="divTableHead">热钱包地址</div>
+	    		<div class="divTableHead">Ripple保有量</div>
+	    		<div class="divTableHead">Xrpgen保有量</div>
+	    	</div>
+			</div>
+    	<div id="show-data" class="divTableBody"> </div>
+  </div>
+    
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    
+    function update() {
+      var update_time = $('#update_time');
+      var holder_num = $('#holder_num');
+      var reserve_rate = $('#reserve_rate');
+      
+      var issuer = $('#issuer');
+      var ripple = $('#ripple');
+      var xrpgen = $('#xrpgen');
+      
+      var showData = $('#show-data');
+
+      $.getJSON('https://xagfans.com/auditapi', function (result) {
+        console.log(result);
+        showData.empty();
+        
+        update_time.empty();
+        holder_num.empty();
+        reserve_rate.empty();
+        
+        update_time.html(result.update_time);
+        holder_num.html(result.info.issuer.holder_num);
+        reserve_rate.html(result.info.balance.rate);
+        
+        issuer.html(result.accounts.issuer);
+        ripple.html(result.info.balance.ripple);
+        xrpgen.html(result.info.balance.xrpgen);
+        
+        for (var i=0; i<result.accounts.hotwallet.length; i++) {
+          var address = result.accounts.hotwallet[i];
+          var content = '<div class="divTableCell">' + address + '</div>'
+                      + '<div class="divTableCell">' + result.info.detail[address].ripple + '</div>'
+                      + '<div class="divTableCell">' + result.info.detail[address].xrpgen + '</div>';
+          var row = $('<div class="divTableRow"/>').html(content);
+          showData.append(row);
+        }
+      });
+
+      showData.html('<div>Loading maket data ...</div>');
+    }
+    
+    $(document).ready(function () {
+      $('#get-data').click(function () {
+        update();
+      });
+    });
+    
+    update();
+    </script>
+</body>
+</html>
