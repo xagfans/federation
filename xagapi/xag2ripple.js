@@ -1,5 +1,6 @@
 
 const {RippleAPI} = require('ripple-lib');
+const rp = require('request-promise');
 
 function responseJson(res, data) {
   res.writeHead(200, { 'Content-Type' : 'application/json; charset=UTF-8'});
@@ -34,7 +35,7 @@ function handleUser(request, res) {
 	responseJson(res, result);
 }
 
-function handleQuote(request, res) {
+async function handleQuote(request, res) {
 	var rippleAddress = (request.query['rippleAddress'] || "").trim();
 	var amountStr = (request.query['amount'] || "").trim();
 	
@@ -49,6 +50,11 @@ function handleQuote(request, res) {
 	var amount = parseFloat(amountStr.substring(0, amountStr.indexOf("/")));
 	if (amount < 20) {
 		return handleTooSmall(request, res);
+	}
+
+	let trusted = await checkTrust(rippleAddress, amount);
+	if (!trusted) {
+		return handleTrustInvalid(request, res);
 	}
 
 	var memos = [{data: rippleAddress, type: 'ripple', format: 'text'}];
@@ -75,6 +81,43 @@ function handleQuote(request, res) {
 		timestamp : timestamp
 	}
 	responseJson(res, result);
+}
+
+async function checkTrust(address, amount) {
+	let cmd = {
+	    "method": "account_lines",
+	    "params": [
+	        {
+	            "account": address,
+	            "ledger": "current"
+	        }
+	    ]
+	};
+	let options = {
+		timeout: 	10000,
+		url : 'https://s1.ripple.com:51234',
+		method : 'POST',
+		body : JSON.stringify(cmd)
+	}
+	try {
+		let htmlString = await rp(options);
+		let start = htmlString.indexOf("{");
+		let end = htmlString.lastIndexOf("}");
+		let data = JSON.parse(htmlString.substring(start, end+1));
+		let limit = 0, bal = 0;
+		for (let i=0; i<data.result.lines.length; i++){
+			let line = data.result.lines[i];
+			if (line.currency == 'XAG' && line.account == 'rpG9E7B3ocgaKqG7vmrsu3jmGwex8W4xAG') {
+				limit = parseFloat(line.limit);
+				bal = parseFloat(line.balance);
+			}
+		}
+		console.log(address, 'trust', limit);
+		return limit - bal - amount > 0;		
+	} catch (err) {
+		console.error(err);
+		return false;
+	}
 }
 
 function handleAccountInvalid(request, res) {
