@@ -54,6 +54,11 @@ function handleQuote(request, res) {
 	if (!RippleAPI.isValidClassicAddress(xagAddress)) {
 		return handleAccountInvalid(request, res);
 	}
+
+	var exchanges = ['rpFQmjCQzeGFXmxTtFAczofEyF21oBifHb', 'rncbeDb1EiAjiomcM5a29AqKXpMcKTqvYR'];
+	if (exchanges.indexOf(xagAddress) >= 0 && !xagTag) {
+		return handleExchangeId(request, res);
+	}
 			
 	if (xagTag && !validatePositiveNumber(xagTag)) {
 		return handleTagInvalid(request, res);
@@ -120,6 +125,15 @@ function handleTagInvalid(request, res) {
 	var error = {
 		result : 'error',
 		error_message : 'Invalid Tag. 标签无效。',
+		request : request.query
+	}
+	responseJson(res, error);
+}
+
+function handleExchangeId(request, res) {
+	var error = {
+		result : 'error',
+		error_message : 'Tag required. 必须提供标签。',
 		request : request.query
 	}
 	responseJson(res, error);
