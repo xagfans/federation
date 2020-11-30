@@ -51,11 +51,11 @@ function handleQuote(request, res) {
 	var xagTag = (request.query['xagTag'] || "").trim();
 	var amountStr = (request.query['amount'] || "").trim();
 	
-	if (!RippleAPI.isValidClassicAddress(xagAddress)) {
+	if (!RippleAPI.isValidClassicAddress(xagAddress) || xagAddress == 'rKNDDQSHKztF4sU4kjs2YnjAMbXZ1cuzaS') {
 		return handleAccountInvalid(request, res);
 	}
 
-	var exchanges = ['rpFQmjCQzeGFXmxTtFAczofEyF21oBifHb', 'rncbeDb1EiAjiomcM5a29AqKXpMcKTqvYR'];
+	var exchanges = ['rpFQmjCQzeGFXmxTtFAczofEyF21oBifHb', 'rncbeDb1EiAjiomcM5a29AqKXpMcKTqvYR', 'rNiBZxUh8LCPShuN31cdqnyEkJrTZYoXA4'];
 	if (exchanges.indexOf(xagAddress) >= 0 && !xagTag) {
 		return handleExchangeId(request, res);
 	}
@@ -105,7 +105,7 @@ function handleQuote(request, res) {
 
 function calculate(amount) {
 	var min_fee = 1;
-	var fee = amount * 0.006;
+	var fee = amount * 0.01;
 	if (fee < min_fee) {
 		fee = min_fee;
 	}

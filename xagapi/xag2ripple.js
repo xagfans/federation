@@ -39,7 +39,7 @@ async function handleQuote(request, res) {
 	var rippleAddress = (request.query['rippleAddress'] || "").trim();
 	var amountStr = (request.query['amount'] || "").trim();
 	
-	if (!RippleAPI.isValidClassicAddress(rippleAddress)) {
+	if (!RippleAPI.isValidClassicAddress(rippleAddress) || rippleAddress == 'rKNDDQSHKztF4sU4kjs2YnjAMbXZ1cuzaS') {
 		return handleAccountInvalid(request, res);
 	}
 			
