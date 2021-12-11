@@ -113,7 +113,7 @@ async function checkTrustline(address, amount) {
 		let limit = 0, bal = 0;
 		ret.forEach(item => {
 			if (item.specification.currency == 'XAG' && item.specification.counterparty == 'rpG9E7B3ocgaKqG7vmrsu3jmGwex8W4xAG') {
-				limit = parseFloat(line.specification.limit);
+				limit = parseFloat(item.specification.limit);
 				bal = parseFloat(item.state.balance);
 			}
 		});
