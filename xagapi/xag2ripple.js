@@ -2,6 +2,27 @@
 const {RippleAPI} = require('ripple-lib');
 const rp = require('request-promise');
 
+function getRemote(url) {
+  var remote = new RippleAPI({
+    server : url,
+    feeCushion : 1.05,
+    maxFeeXRP : "0.02"
+  });
+  remote.connection._config.connectionTimeout = 10000;
+  remote.on('connected', () => {
+    console.log('Connected to', url);
+  });
+  remote.on('disconnected', (code) => {
+    console.log(url, 'disconnected, code:', code);
+  });
+  remote.on('error', (errorCode, errorMessage) => {
+    console.warn(url, 'error(' + errorCode + '): ' + errorMessage);
+  });
+  return remote;
+}
+
+const remote = getRemote("wss://xrplcluster.com");
+
 function responseJson(res, data) {
   res.writeHead(200, { 'Content-Type' : 'application/json; charset=UTF-8'});
   res.end(JSON.stringify(data));
@@ -52,7 +73,7 @@ async function handleQuote(request, res) {
 		return handleTooSmall(request, res);
 	}
 
-	let trusted = await checkTrust(rippleAddress, amount);
+	let trusted = await checkTrustline(rippleAddress, amount);
 	if (!trusted) {
 		return handleTrustInvalid(request, res);
 	}
@@ -81,6 +102,26 @@ async function handleQuote(request, res) {
 		timestamp : timestamp
 	}
 	responseJson(res, result);
+}
+
+async function checkTrustline(address, amount) {
+	try {
+		if (!remote.isConnected()) {
+			await remote.connect();
+		}
+		let ret = await remote.getTrustlines(address);
+		let limit = 0, bal = 0;
+		ret.forEach(item => {
+			if (item.specification.currency == 'XAG' && item.specification.counterparty == 'rpG9E7B3ocgaKqG7vmrsu3jmGwex8W4xAG') {
+				limit = parseFloat(line.specification.limit);
+				bal = parseFloat(item.state.balance);
+			}
+		});
+		return limit - bal - amount > 0;
+	} catch (err) {
+		console.error(err);
+		return false;
+	}
 }
 
 async function checkTrust(address, amount) {
